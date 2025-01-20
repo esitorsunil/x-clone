@@ -7,7 +7,7 @@ const generateTokens = (userId, res) => {
         httpOnly: true, //xss attack
         secure: process.env.NODE_ENV !== "development",
         sameSite: "strict", // csrf attack
-        maxAge: 15 * 24 * 60 * 1000
+        maxAge: 15*24*60*1000
     });
 };
 
