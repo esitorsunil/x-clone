@@ -127,3 +127,17 @@ export const likeUnlikePost = async(req, res) => {
         res.status(500).json({error: "Internal Server Error"});
     }
         }
+
+export const getAllPosts = async(req, res) => {
+    try {
+        const posts = await Post.find({}).sort({createdAt: -1});
+        if(posts.length === 0){
+            return res.status(404).json([]);
+        }
+        res.status(200).json(posts);
+
+    } catch (error) {
+        console.log(`Error in getAllPosts controller: ${error}`);
+        res.status(500).json({error: "Internal Server Error"});
+    }
+}
