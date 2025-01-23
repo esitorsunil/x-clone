@@ -1,6 +1,7 @@
 import User from "../models/user.model.js";
 import cloudinary from "cloudinary";
 import Post from "../models/post.model.js";
+import Notification from "../models/notification.model.js";
 
 export const createPost = async(req, res) => {
     try {
@@ -89,3 +90,40 @@ export const createComment = async(req, res) => {
     }
 }   
 
+export const likeUnlikePost = async(req, res) => {
+    try {
+        const userId = req.user._id;
+        const {id: postId} = req.params;
+
+        const post = await Post.findOne({_id: postId});
+        if(!post){
+            return res.status(404).json({error: "Post not found"});
+        }
+
+        const userLikedPost = post.likes.includes(userId);
+        if(userLikedPost){
+            //unlike the post
+            await Post.updateOne({_id: postId}, {$pull: {likes: userId}});
+            res.status(200).json({message: "Post unliked successfully"});
+        }
+        else{
+            //like the post
+            post.likes.push(userId);
+            await post.save();
+
+            const notification = new Notification({
+                from: userId,
+                to: post.user,
+                type: "like"
+            })
+            await notification.save();
+            res.status(200).json({message: "Post liked successfully"});
+        }
+        await post.save();
+        res.status(200).json(post);
+        
+    } catch (error) {
+        console.log(`Error in likeUnlikePost controller: ${error}`);
+        res.status(500).json({error: "Internal Server Error"});
+    }
+        }
