@@ -104,11 +104,13 @@ export const likeUnlikePost = async(req, res) => {
         if(userLikedPost){
             //unlike the post
             await Post.updateOne({_id: postId}, {$pull: {likes: userId}});
+            await User.updateOne({_id: userId}, {$pull: {likedPosts: postId}});
             res.status(200).json({message: "Post unliked successfully"});
         }
         else{
             //like the post
             post.likes.push(userId);
+            await User.updateOne({_id: userId}, {$push: {likedPosts: postId}});
             await post.save();
 
             const notification = new Notification({
@@ -130,7 +132,14 @@ export const likeUnlikePost = async(req, res) => {
 
 export const getAllPosts = async(req, res) => {
     try {
-        const posts = await Post.find({}).sort({createdAt: -1});
+        const posts = await Post.find().sort({createdAt: -1}).populate({
+            path: "user",
+            select: "-password"
+        })
+        .populate({
+            path: "comments.user",
+            select: ["-password","-email","-following","-followers","-bio","-link"]
+        })
         if(posts.length === 0){
             return res.status(404).json([]);
         }
@@ -138,6 +147,29 @@ export const getAllPosts = async(req, res) => {
 
     } catch (error) {
         console.log(`Error in getAllPosts controller: ${error}`);
+        res.status(500).json({error: "Internal Server Error"});
+    }
+}
+
+export const getLikedPosts = async(req, res) => {
+    try {
+        const userId = req.params.id;
+        const user = await User.findById({_id: userId});
+        if(!user){
+            return res.status(404).json({error: "User not found"});
+        }
+        const likedPosts = await Post.find({_id: {$in: user.likedPosts}})
+        .populate({
+            path: "user",
+            select: "-password"
+        })
+        .populate({
+            path: "comments.user",
+            select: ["-password","-email","-following","-followers","-bio","-link"]
+        })
+        res.status(200).json(likedPosts);
+    } catch (error) {
+        console.log(`Error in getLikedPosts controller: ${error}`);
         res.status(500).json({error: "Internal Server Error"});
     }
 }
