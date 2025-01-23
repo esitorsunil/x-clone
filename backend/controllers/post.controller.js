@@ -34,3 +34,27 @@ export const createPost = async(req, res) => {
         res.status(500).json({error: "Internal Server Error"});
     }
 } 
+
+export const deletePost = async(req, res) => {
+    try {
+        const {id} = req.params;
+        const post = await Post.findOne({_id: id});
+        if(!post){
+            return res.status(404).json({error: "Post not found"});
+        }
+        if(post.user.toString() !== req.user._id.toString()){
+            return res.status(401).json({error: "You can only delete your own posts"});
+        }
+        if(post.img){
+            const imgId = post.img.split("/").pop().split(".")[0];
+            await cloudinary.uploader.destroy(imgId);
+        }
+        await Post.findByIdAndDelete({_id: id});
+
+        res.status(200).json({message: "Post deleted successfully"});
+        
+    } catch (error) {
+        console.log(`Error in deletePost controller: ${error}`);
+        res.status(500).json({error: "Internal Server Error"});
+    }
+}
