@@ -9,7 +9,7 @@ export const getProfile = async(req, res) => {
         const user = await User.findOne({username});
 
         if(!user) {
-            return res.status(400).json({error: "User not found"});
+            return res.status(404).json({error: "User not found"});
         }
 
         res.status(200).json(user);
@@ -30,7 +30,7 @@ export const followUnfollowUser = async(req, res) => {
         }
 
         if(!userToModify || !currentUser) {
-            return res.status(400).json({error: "User not found"});
+            return res.status(404).json({error: "User not found"});
         }
 
         const isFollowing = currentUser.following.includes(id);
@@ -99,7 +99,7 @@ export const updateUser = async(req, res) => {
 
         let user = await User.findById({_id: userId});
         if(!user) {
-            return res.status(400).json({error: "User not found"});
+            return res.status(404).json({error: "User not found"});
         }
         if((!newPassword && currentPassword) || (!currentPassword && newPassword)) {
             res.status(400).json({error: "Please provide both current password and new password"});
