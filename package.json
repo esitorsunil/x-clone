@@ -9,9 +9,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-
   "description": "",
   "dependencies": {
+    "@tailwindcss/cli": "^4.0.0",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.5.1",
     "cookie-parser": "^1.4.7",
@@ -19,7 +19,8 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.9.5"
+    "mongoose": "^8.9.5",
+    "tailwindcss": "^4.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"
